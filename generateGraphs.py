@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 
-files = ["LandClass/rezultati/AlexNet.txt",
-         "LandClass/rezultati/ResNet.txt",
-         "LandClass/rezultati/VGG.txt"
+files = ["EuroSATClassifier/results/AlexNet.txt",
+         "EuroSATClassifier/results/ResNet.txt",
+         "EuroSATClassifier/results/VGG.txt"
 ]
 
 all_epochs = []
@@ -34,4 +34,5 @@ for file in files:
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.legend()
+
 plt.show()
