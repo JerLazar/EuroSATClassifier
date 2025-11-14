@@ -7,25 +7,21 @@ start_time = time.perf_counter()
 
 class BasicBlock(nn.Module):
     expansion = 1
-    def __init__(self, in_channels, out_channels, stride=1, downsample=None):
+    def __init__(self, in_channels, out_channels):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(in_channels, out_channels, 3, stride=stride, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(in_channels, out_channels, 3, 1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channels)
         self.relu = nn.ReLU(inplace=True)
 
         self.conv2 = nn.Conv2d(out_channels, out_channels, 3, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels)
-        self.downsample = downsample
 
     def forward(self, x):
         identity = x
 
         out = self.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
-
-        if self.downsample is not None:
-            identity = self.downsample(x)
             
         out += identity
         return self.relu(out)
@@ -40,9 +36,9 @@ class ResNet(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
         self.layer1 = self.make_layer(block, 64,  layers[0])
-        self.layer2 = self.make_layer(block, 128, layers[1], stride=2)
-        self.layer3 = self.make_layer(block, 256, layers[2], stride=2)
-        self.layer4 = self.make_layer(block, 512, layers[3], stride=2)
+        self.layer2 = self.make_layer(block, 128, layers[1])
+        self.layer3 = self.make_layer(block, 256, layers[2])
+        self.layer4 = self.make_layer(block, 512, layers[3])
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.dropout = nn.Dropout(0.3)
@@ -50,16 +46,8 @@ class ResNet(nn.Module):
         
         self._init_weights()
 
-    def make_layer(self, block, out_channels, blocks, stride=1):
-        downsample = None
-
-        if stride != 1 or self.in_channels != out_channels * block.expansion:
-            downsample = nn.Sequential(
-                nn.Conv2d(self.in_channels, out_channels * block.expansion, 1, stride=stride, bias=False),
-                nn.BatchNorm2d(out_channels * block.expansion)
-            )
-
-        layers = [block(self.in_channels, out_channels, stride, downsample)]
+    def make_layer(self, block, out_channels, blocks):
+        layers = [block(self.in_channels, out_channels)]
         self.in_channels = out_channels * block.expansion
 
         for _ in range(1, blocks):
