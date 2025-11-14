@@ -6,11 +6,10 @@ import time
 start_time = time.perf_counter()
 
 class BasicBlock(nn.Module):
-    expansion = 1
     def __init__(self, in_channels, out_channels):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(in_channels, out_channels, 3, 1, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(in_channels, out_channels, 3, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channels)
         self.relu = nn.ReLU(inplace=True)
 
@@ -23,7 +22,7 @@ class BasicBlock(nn.Module):
         out = self.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
             
-        out += identity
+        out += identity #res
         return self.relu(out)
 
 class ResNet(nn.Module):
@@ -42,13 +41,13 @@ class ResNet(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.dropout = nn.Dropout(0.3)
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.fc = nn.Linear(512, num_classes)
         
         self._init_weights()
 
     def make_layer(self, block, out_channels, blocks):
         layers = [block(self.in_channels, out_channels)]
-        self.in_channels = out_channels * block.expansion
+        self.in_channels = out_channels
 
         for _ in range(1, blocks):
             layers.append(block(self.in_channels, out_channels))
