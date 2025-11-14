@@ -3,13 +3,13 @@ import torch.nn as nn
 import loader
 import time
 
-
 start_time = time.perf_counter()
 
-cfg_vgg16 = [64, 64, 'M',
-            128, 128, 'M',
-            256, 256, 'M',
-            512, 512, 'M']
+cfg_vgg16 = [64, 64, 'M', 
+            128, 128, 'M', 
+            256, 256, 256, 'M',
+            512, 512, 512, 'M', 
+            512, 512, 512, 'M']
 
 def make_layers(cfg):
     layers = []
@@ -39,6 +39,7 @@ class VGG(nn.Module):
             nn.Dropout(0.5),
             nn.Linear(512 * 2 * 2, 1024), 
             nn.ReLU(True),
+
             nn.Dropout(0.5),
             nn.Linear(1024, num_classes)
         )
